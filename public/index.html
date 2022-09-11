@@ -1,11 +1,88 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title>Title of the document</title>
+    <title>OCR & TTS</title>
+    <style>
+      body {
+        margin: 0;
+        padding: 0;
+      }
+      .main {
+        width: 100vw;
+        height: 100vh;
+        background-color: #a5b7bd;
+      }
+      .body {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-direction: column;
+      }
+      .sub-title {
+        color: #666;
+      }
+      .button-container {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      button {
+        padding: 10px;
+        border-radius: 10px;
+        border: 0;
+        background-color: white;
+        margin-right: 10px;
+        box-shadow: rgba(0, 0, 0, 0.1) 0px 4px 12px;
+      }
+      .tts-container {
+        width: 30vw;
+        height: 30vh;
+        display: flex;
+        background-color: white;
+        margin-top: 50px;
+        padding: 10px;
+        border-radius: 15px;
+        box-shadow: rgba(149, 157, 165, 0.2) 0px 8px 24px;
+      }
+    </style>
+    <script
+      src="https://code.jquery.com/jquery-1.12.4.min.js"
+      integrity="sha256-ZosEbRLbNQzLpnKIkEdrPv7lOy9C27hHQ+Xp8a4MxAQ="
+      crossorigin="anonymous"
+    ></script>
+    <script>
+      $("document").ready(function () {
+        $(".file-upload").click(function (e) {
+          e.preventDefault();
+
+          $("#img").click();
+        });
+      });
+    </script>
   </head>
 
   <body>
-    <form action="/upload" method="post" enctype="multipart/form-data">
+    <div class="main">
+      <div class="body">
+        <h1>OCR & TTS</h1>
+        <p class="sub-title">Extract or Scan text from images</p>
+        <div class="button-container">
+          <button class="file-upload">Upload Image</button>
+          <button>Play MP3 file from TTS</button>
+          <button>Download MP3 file from TTS</button>
+        </div>
+        <div class="tts-container">
+          <span class="tts-text">fsafasfasfasfasfasf</span>
+        </div>
+      </div>
+    </div>
+
+    <form
+      id="uploadForm"
+      action="/upload"
+      method="post"
+      enctype="multipart/form-data"
+    >
       <label for="img"></label>
       <input type="file" id="img" name="img" , accept="image/*" />
       <input type="submit" value="제출" />
