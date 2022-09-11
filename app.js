@@ -33,8 +33,8 @@ app.post("/upload", upload.single("img"), async (req, res, next) => {
 
   (async () => {
     await worker.load();
-    await worker.loadLanguage("eng");
-    await worker.initialize("eng");
+    await worker.loadLanguage("kor+eng");
+    await worker.initialize("kor+eng");
     const {
       data: { text },
     } = await worker.recognize(
