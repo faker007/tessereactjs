@@ -34,6 +34,11 @@
         margin-right: 10px;
         box-shadow: rgba(0, 0, 0, 0.1) 0px 4px 12px;
       }
+      .disabled {
+        cursor: not-allowed;
+        pointer-events: none;
+        background-color: #999;
+      }
       .tts-container {
         width: 30vw;
         height: 30vh;
@@ -50,6 +55,7 @@
       integrity="sha256-ZosEbRLbNQzLpnKIkEdrPv7lOy9C27hHQ+Xp8a4MxAQ="
       crossorigin="anonymous"
     ></script>
+
     <script>
       $("document").ready(function () {
         $(".file-upload").click(function (e) {
@@ -57,7 +63,44 @@
 
           $("#img").click();
         });
+
+        /** Buttons will be disabled when initialized */
+        $(".play-button").toggleClass("disabled");
+        $(".download-button").toggleClass("disabled");
       });
+
+      function handleOnChange(event) {
+        var form = $("#img-form")[0];
+        var formData = new FormData(form);
+
+        $.ajax({
+          processData: false,
+          contentType: false,
+          url: "/upload",
+          type: "POST",
+          data: formData,
+          success: function (res) {
+            console.log("성공: ");
+            console.log(res);
+            if (res.text) {
+              // Play MP3 file from TTS, Download MP3 file from TTS able
+              $(".play-button").toggleClass("disabled");
+              $(".download-button").toggleClass("disabled");
+
+              // Replace the text
+              $(".tts-text").text(res.text);
+            }
+          },
+          error: function (res) {
+            console.log("실패: ");
+            console.log(res);
+          },
+        });
+
+        return false;
+
+        // $("#img-form").submit();
+      }
     </script>
   </head>
 
@@ -65,26 +108,33 @@
     <div class="main">
       <div class="body">
         <h1>OCR & TTS</h1>
-        <p class="sub-title">Extract or Scan text from images</p>
+        <p class="sub-title">Extract or Scan text from image</p>
         <div class="button-container">
           <button class="file-upload">Upload Image</button>
-          <button>Play MP3 file from TTS</button>
-          <button>Download MP3 file from TTS</button>
+          <button class="play-button">Play MP3 file from TTS</button>
+          <button class="download-button">Download MP3 file from TTS</button>
         </div>
         <div class="tts-container">
-          <span class="tts-text">fsafasfasfasfasfasf</span>
+          <span class="tts-text"></span>
         </div>
       </div>
     </div>
 
     <form
-      id="uploadForm"
+      id="img-form"
       action="/upload"
       method="post"
       enctype="multipart/form-data"
     >
       <label for="img"></label>
-      <input type="file" id="img" name="img" , accept="image/*" />
+      <input
+        type="file"
+        id="img"
+        name="img"
+        ,
+        accept="image/*"
+        onchange="handleOnChange(this)"
+      />
       <input type="submit" value="제출" />
     </form>
   </body>
