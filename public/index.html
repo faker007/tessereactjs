@@ -41,7 +41,7 @@
       }
       .tts-container {
         width: 30vw;
-        height: 30vh;
+        min-height: 50vh;
         display: flex;
         background-color: white;
         margin-top: 50px;
@@ -57,11 +57,35 @@
     ></script>
 
     <script>
+      var latestFileName = "";
+
+      // About audio
+      var audio;
+      var isPlaying = false;
+      var isAudioInitialized = false;
+
       $("document").ready(function () {
         $(".file-upload").click(function (e) {
           e.preventDefault();
 
           $("#img").click();
+        });
+
+        $(".download-button").click(function (e) {
+          var isDisabledDownloadButton =
+            $(".download-button").hasClass("disabled");
+
+          if (!isDisabledDownloadButton) {
+            handleFileDownload(latestFileName);
+          }
+        });
+
+        $(".play-button").click(function (e) {
+          var isDisabledDownloadButton = $(".play-button").hasClass("disabled");
+
+          if (!isDisabledDownloadButton) {
+            handlePlayMP3(latestFileName);
+          }
         });
 
         /** Buttons will be disabled when initialized */
@@ -89,6 +113,7 @@
 
               // Replace the text
               $(".tts-text").text(res.text);
+              latestFileName = res.ts_hms;
             }
           },
           error: function (res) {
@@ -98,6 +123,44 @@
         });
 
         return false;
+      }
+
+      function handleFileDownload(fileName) {
+        $.ajax({
+          type: "GET",
+          url: "/download",
+          data: { fileName },
+          // contentType: "application/json; charset=utf-8",
+          success: function (blob) {
+            console.log("완료");
+            var blob = new Blob([blob]);
+            var link = document.createElement("a");
+
+            link.href = window.URL.createObjectURL(blob);
+            link.download = `sounds/${latestFileName}.mp3`;
+
+            link.click();
+            link.remove();
+          },
+        });
+
+        return false;
+      }
+
+      function handlePlayMP3(fileName) {
+        if (!isAudioInitialized) {
+          audio = new Audio(`sounds/${latestFileName}.mp3`);
+
+          isAudioInitialized = true;
+        }
+
+        if (!isPlaying) {
+          audio.play();
+        } else {
+          audio.pause();
+        }
+
+        isPlaying = !isPlaying;
       }
     </script>
   </head>
