@@ -17,8 +17,17 @@ const __filename = fileURLToPath(import.meta.url);
 
 const __dirname = path.dirname(__filename);
 
+var storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, __dirname + "/public/uploads/");
+  },
+  filename: function (req, file, cb) {
+    cb(null, file.originalname);
+  },
+});
+
 const upload = multer({
-  dest: __dirname + "/uploads/",
+  storage: storage,
 });
 
 app.use(cors());
@@ -27,6 +36,8 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 
 app.post("/upload", upload.single("img"), async (req, res, next) => {
+  console.log(req.file);
+  var mimetype = req.file.mimetype.split("image/");
   const worker = createWorker({
     logger: (m) => console.log(m),
   });
@@ -38,7 +49,8 @@ app.post("/upload", upload.single("img"), async (req, res, next) => {
     const {
       data: { text },
     } = await worker.recognize(
-      "https://tesseract.projectnaptha.com/img/eng_bw.png"
+      // "https://tesseract.projectnaptha.com/img/eng_bw.png"
+      `http://localhost:3000/uploads/${req.file.filename}`
     );
     console.log(text);
 
@@ -48,7 +60,6 @@ app.post("/upload", upload.single("img"), async (req, res, next) => {
 
     const request = {
       input: { text },
-      // Select the language and SSML Voice Gender (optional)
       voice: {
         languageCode: "ko_KR",
         ssmlGender: "FEMALE",
@@ -67,8 +78,14 @@ app.post("/upload", upload.single("img"), async (req, res, next) => {
 
       var ts_hms = Date.now().toString();
 
+      console.log("-".repeat("10"));
+      console.log("__dirname");
+      console.log("-".repeat("10"));
+
+      console.log(__dirname);
+
       fs.writeFile(
-        __dirname + ts_hms + ".mp3",
+        __dirname + "/public/sounds/" + ts_hms + ".mp3",
         response.audioContent,
         "binary",
         (err) => {
@@ -77,16 +94,21 @@ app.post("/upload", upload.single("img"), async (req, res, next) => {
             return;
           }
           console.log(__dirname + ts_hms + ".mp3");
-          res.json({ ok: true, text });
+          res.json({ ok: true, text, ts_hms });
         }
       );
     });
   })();
 });
 
-app.listen(3000, () => {
-  // The text to synthesize
-  const text = "안녕하세요";
+app.get("/download", function (req, res) {
+  const baseFileURL = `${__dirname}/public/sounds/`;
+  const fileName = req.query.fileName;
 
-  // Construct the request
+  console.log(req.query);
+  res.download(baseFileURL + fileName + ".mp3", fileName + ".mp3");
+});
+
+app.listen(3000, () => {
+  console.log("Okay running with port 3000");
 });
