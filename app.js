@@ -49,7 +49,6 @@ app.post("/upload", upload.single("img"), async (req, res, next) => {
     const {
       data: { text },
     } = await worker.recognize(
-      // "https://tesseract.projectnaptha.com/img/eng_bw.png"
       `http://localhost:3000/uploads/${req.file.filename}`
     );
     console.log(text);
@@ -65,7 +64,6 @@ app.post("/upload", upload.single("img"), async (req, res, next) => {
         ssmlGender: "FEMALE",
         name: "ko-KR-Wavenet-A",
       },
-      // Select the type of audio encoding
       audioConfig: { audioEncoding: "MP3" },
     };
 
@@ -93,6 +91,7 @@ app.post("/upload", upload.single("img"), async (req, res, next) => {
             console.error("ERROR:", err);
             return;
           }
+
           console.log(__dirname + ts_hms + ".mp3");
           res.json({ ok: true, text, ts_hms });
         }
@@ -106,7 +105,11 @@ app.get("/download", function (req, res) {
   const fileName = req.query.fileName;
 
   console.log(req.query);
-  res.download(baseFileURL + fileName + ".mp3", fileName + ".mp3");
+
+  fs.readFile(`${baseFileURL}${fileName}.mp3`, function (err, file) {
+    var base64 = new Buffer(file, "binary").toString("base64");
+    res.json({ base64 });
+  });
 });
 
 app.listen(3000, () => {

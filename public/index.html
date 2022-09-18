@@ -130,14 +130,15 @@
           type: "GET",
           url: "/download",
           data: { fileName },
-          // contentType: "application/json; charset=utf-8",
-          success: function (blob) {
-            console.log("완료");
-            var blob = new Blob([blob]);
-            var link = document.createElement("a");
+          success: function (data) {
+            const data2 = base64ToBuffer(data.base64);
+            const blob = new Blob([data2], { type: "audio/mp3" });
 
+            var link = document.createElement("a");
             link.href = window.URL.createObjectURL(blob);
-            link.download = `sounds/${latestFileName}.mp3`;
+
+            const audio = new Audio();
+            audio.src = link.download = `${latestFileName}.mp3`;
 
             link.click();
             link.remove();
@@ -162,6 +163,16 @@
 
         isPlaying = !isPlaying;
       }
+
+      var base64ToBuffer = function (buffer) {
+        var binary = window.atob(buffer);
+        var buffer = new ArrayBuffer(binary.length);
+        var bytes = new Uint8Array(buffer);
+        for (var i = 0; i < buffer.byteLength; i++) {
+          bytes[i] = binary.charCodeAt(i) & 0xff;
+        }
+        return buffer;
+      };
     </script>
   </head>
 
